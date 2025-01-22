@@ -33,52 +33,6 @@ Tab:AddButton({
 	Callback = function()
 _G.Config = {
 
-    ["Melee"] = {
-
-        ["Superhuman"],
-
-        ["Death Step"],
-
-        ["Sharkman Karate"],
-
-        ["Electric Claw"],
-
-        ["Dragon Talon"],
-
-        ["Godhuman"]
-
-    },
-
-    ["Sword"] = {
-
-        ["Saber"],
-
-        ["Rengoku"],
-
-        ["Canvander"],
-
-        ["Buddy Sword"],
-
-        ["Yama"],
-
-        ["Tushita"],
-
-        ["True Triple Katana"],
-
-        ["Cursed Dual Katana"]
-
-    },
-
-    ["Gun"] = {
-
-        ["Kabucha"],
-
-        ["Acidum Rifle"],
-
-        ["Serpent Bow"]
-
-    },
-
     ["Mastery"] = {
 
         ["Sword"] = true
