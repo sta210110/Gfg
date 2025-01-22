@@ -35,47 +35,47 @@ _G.Config = {
 
     ["Melee"] = {
 
-        ["Superhuman"] = true,
+        ["Superhuman"],
 
-        ["Death Step"] = true,
+        ["Death Step"],
 
-        ["Sharkman Karate"] = true,
+        ["Sharkman Karate"],
 
-        ["Electric Claw"] = true,
+        ["Electric Claw"],
 
-        ["Dragon Talon"] = true,
+        ["Dragon Talon"],
 
-        ["Godhuman"] = true
+        ["Godhuman"]
 
     },
 
     ["Sword"] = {
 
-        ["Saber"] = true,
+        ["Saber"],
 
-        ["Rengoku"] = true,
+        ["Rengoku"],
 
-        ["Canvander"] = true,
+        ["Canvander"],
 
-        ["Buddy Sword"] = true,
+        ["Buddy Sword"],
 
-        ["Yama"] = true,
+        ["Yama"],
 
-        ["Tushita"] = true,
+        ["Tushita"],
 
-        ["True Triple Katana"] = true,
+        ["True Triple Katana"],
 
-        ["Cursed Dual Katana"] = true
+        ["Cursed Dual Katana"]
 
     },
 
     ["Gun"] = {
 
-        ["Kabucha"] = true,
+        ["Kabucha"],
 
-        ["Acidum Rifle"] = true,
+        ["Acidum Rifle"],
 
-        ["Serpent Bow"] = true
+        ["Serpent Bow"]
 
     },
 
