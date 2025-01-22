@@ -14,7 +14,7 @@ local Tab2 = Window:MakeTab({
 })
 
 Tab2:AddButton({
-	Name = "Fix Lag🔰",
+	Name = "Fix Lag",
 	Callback = function()
         repeat wait(5) until game:IsLoaded()
       loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/main/FixLag.lua"))()
