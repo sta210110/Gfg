@@ -33,6 +33,23 @@ Tab:AddButton({
 	Callback = function()
 _G.Config = {
 
+    ["Melee"] = {
+
+
+    },
+
+    ["Sword"] = {
+
+
+
+    },
+
+    ["Gun"] = {
+
+
+
+    },
+
     ["Mastery"] = {
 
         ["Sword"] = true
