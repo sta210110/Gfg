@@ -1,0 +1,209 @@
+local StarterGui = game:GetService("StarterGui")
+
+StarterGui:SetCore("SendNotification", {
+    Title = "loading...";
+    Text = "made by MidoriMidoru_73816";
+    Duration = 5;
+})
+
+local Lighting = game:GetService("Lighting")
+
+local function clearFog()
+	Lighting.FogStart = 0
+	Lighting.FogEnd = 1e9
+end
+
+local function neuterAtmosphere(a)
+	if a and a:IsA("Atmosphere") then
+		a.Density = 0
+		pcall(function() a.Haze = 0 end)
+		pcall(function() a.Glare = 0 end)
+		a:GetPropertyChangedSignal("Density"):Connect(function() a.Density = 0 end)
+		pcall(function() a:GetPropertyChangedSignal("Haze"):Connect(function() a.Haze = 0 end) end)
+		pcall(function() a:GetPropertyChangedSignal("Glare"):Connect(function() a.Glare = 0 end) end)
+	end
+end
+
+clearFog()
+for _, child in ipairs(Lighting:GetChildren()) do
+	neuterAtmosphere(child)
+end
+
+Lighting.ChildAdded:Connect(neuterAtmosphere)
+Lighting:GetPropertyChangedSignal("FogStart"):Connect(clearFog)
+Lighting:GetPropertyChangedSignal("FogEnd"):Connect(clearFog)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "HeightAdjusterGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 250, 0, 150)
+frame.Position = UDim2.new(0.5, -125, 0, 0)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "SKY BASE MAKER_v1"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+title.Parent = frame
+
+local sliderFrame = Instance.new("Frame")
+sliderFrame.Size = UDim2.new(1, -20, 0, 40)
+sliderFrame.Position = UDim2.new(0, 10, 0, 40)
+sliderFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+sliderFrame.Parent = frame
+
+local sliderBar = Instance.new("Frame")
+sliderBar.Size = UDim2.new(1, -20, 0, 10)
+sliderBar.Position = UDim2.new(0, 10, 0.5, -5)
+sliderBar.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+sliderBar.Parent = sliderFrame
+
+local sliderButton = Instance.new("TextButton")
+sliderButton.Size = UDim2.new(0, 20, 0, 20)
+sliderButton.Position = UDim2.new(0, 0, 0.5, -10)
+sliderButton.Text = ""
+sliderButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+sliderButton.Parent = sliderFrame
+
+local addButton = Instance.new("TextButton")
+addButton.Size = UDim2.new(0.45, -5, 0, 30)
+addButton.Position = UDim2.new(0, 10, 0, 100)
+addButton.Text = "⚓️"
+addButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+addButton.Parent = frame
+
+local removeButton = Instance.new("TextButton")
+removeButton.Size = UDim2.new(0.45, -5, 0, 30)
+removeButton.Position = UDim2.new(0.55, 0, 0, 100)
+removeButton.Text = "✂️"
+removeButton.BackgroundColor3 = Color3.fromRGB(200, 100, 100)
+removeButton.Parent = frame
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 80, 0, 30)
+toggleButton.Position = UDim2.new(0, 10, 0, 200)
+toggleButton.Text = "😙"
+toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 200)
+toggleButton.Parent = screenGui
+
+local targets = {}
+local dragging = false
+local sliderValue = 0
+local lastCheck = 0
+
+local function getFootPart()
+    local character = LocalPlayer.Character
+    if not character then return nil end
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if not root then return nil end
+    local ray = Ray.new(root.Position, Vector3.new(0, -5, 0))
+    local part = workspace:FindPartOnRay(ray, character)
+    return part
+end
+
+local function ensureHighlight(part)
+    if not part or not part:IsA("BasePart") then return end
+    local highlight = part:FindFirstChild("PersistentHighlight")
+    if not highlight then
+        highlight = Instance.new("Highlight")
+        highlight.Name = "PersistentHighlight"
+        highlight.Adornee = part
+        highlight.FillColor = Color3.fromRGB(0, 255, 0)
+        highlight.FillTransparency = 0.3
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+        highlight.OutlineTransparency = 0
+        highlight.Parent = part
+    end
+end
+
+local function removeHighlight(part)
+    local highlight = part and part:FindFirstChild("PersistentHighlight")
+    if highlight then
+        highlight:Destroy()
+    end
+end
+
+local function updateSlider(inputX)
+    local barPos = sliderBar.AbsolutePosition.X
+    local barSize = sliderBar.AbsoluteSize.X
+    local relativeX = math.clamp(inputX - barPos, 0, barSize)
+    sliderButton.Position = UDim2.new(0, relativeX - 10, 0.5, -10)
+    sliderValue = math.floor((relativeX / barSize) * 100)
+    for part, _ in pairs(targets) do
+        if part and part:IsA("BasePart") then
+            part.Size = Vector3.new(part.Size.X, sliderValue, part.Size.Z)
+        end
+    end
+end
+
+sliderButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateSlider(input.Position.X)
+    end
+end)
+
+sliderBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        updateSlider(input.Position.X)
+    end
+end)
+
+addButton.MouseButton1Click:Connect(function()
+    local part = getFootPart()
+    if part and not targets[part] then
+        if part.Size.X > 35 and part.Size.Z > 35 then
+            targets[part] = true
+            ensureHighlight(part)
+        end
+    end
+end)
+
+removeButton.MouseButton1Click:Connect(function()
+    local part = getFootPart()
+    if part and targets[part] then
+        targets[part] = nil
+        removeHighlight(part)
+    end
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible
+    toggleButton.Text = frame.Visible and "😙" or "😗"
+end)
+
+RunService.RenderStepped:Connect(function()
+    if tick() - lastCheck >= 2 then
+        lastCheck = tick()
+        for part, _ in pairs(targets) do
+            if part and part:IsA("BasePart") then
+                if not part:FindFirstChild("PersistentHighlight") then
+                    ensureHighlight(part)
+                end
+            end
+        end
+    end
+end)
